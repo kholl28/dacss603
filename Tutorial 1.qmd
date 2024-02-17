@@ -1,0 +1,236 @@
+---
+title: "DACSS 603 Tutorial 1"
+author: "Kai Holl"
+format: html
+editor: visual
+---
+
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(ggplot2)
+library(palmerpenguins)
+
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+```
+
+How to complete the tutorial
+Read through the text and run code chunks!
+Some code chunks are already filled in for you.
+Others don't have code in them, just write your own code based on instructions.
+If you would like to add text or code blocks, or take notes on your own copy, make sure you save a copy to your Drive.
+Some of the things you find here might be on the weekly quiz.
+Load Data
+We will use the 'penguins' dataset from the palmerpenguins dataset for this tutorial.
+
+
+```{r}
+data('penguins', package = 'palmerpenguins')
+```
+
+It's a good idea to just use the head() function to print some of the dataset. Because the dataset directly comes in a tibble format, below every column name is a tag such as (factor) or (double) that indicates what type (class) that variable is.
+
+```{r}
+head(penguins, n = 10)
+```
+
+The penguins dataset has one observation in every row---a feature of tidy datasets. In the code chunk below, use the nrow() function to check out how many observations (i.e. rows) the dataset has.
+
+```{r}
+nrow(penguins)
+```
+
+Check missing values
+When we used the head() function, we saw that there were some missing values (NA). The is.na() function can be used to identify missing values. However, it's output is not super useful for large datasets. For example, let's see the missing values in the bill_length_mm variable:
+
+
+```{r}
+is.na(penguins$bill_length_mm)
+```
+
+This is not very useful. A more useful information can be the indices of the observations for which bill_length_mm is missing. We can use the which() function for that:
+
+```{r}
+# which(is.na) shows you which rows in the column contain the missing values (NAs)
+which(is.na(penguins$bill_depth_mm)) # 4, 272
+
+# sum(is.na) tells you the number of missing values in a dataframe or dataframe column
+
+sum(is.na(penguins$bill_depth_mm)) # 2
+```
+
+
+You can use the complete.cases() function to find all observations for which no variable is missing. You can use na.omit() to return a dataframe where any observation with any missing variable is eliminated. The exploration of those functions are left to you.
+
+In general, when you encounter missing values, it's best to explore why they are missing, whether there is a large number of missing values, and if it appears to be systematic. (e.g. all values from a time period or place is missing or it is missing for a particular demographic etc.)
+
+Summarizing Information
+Use the summary() function on the penguins tibble. Do any of the other variables have missing values?
+
+[ ]
+summary(penguins)
+The glimpse() function from the dplyr package provides another way of summarizing the information in a dataframe.
+
+[ ]
+library(dplyr)
+glimpse(penguins)
+Mean, Median, Variance, and Standard Deviation
+We use the mean() function to calculate the mean of a variable. Let's use it to calculate the mean of the bill_length_mm variable. Because the variable has missing values, we need to set the na.rm argument to TRUE (or just T) so that it ignores the missing values when doing the calculation. We'll need to do that for some other functions too.
+
+[ ]
+mean(penguins$bill_length_mm, na.rm = T)
+The median is another measure of central tendency. Use the median() function to calculate the median.
+
+[ ]
+# Write code here
+The var() function calculates the (sample) variance. Let's use it to calculate the variance of the bill_length_mm variable.
+
+[ ]
+var(penguins$bill_length_mm, na.rm = T)
+
+The sd() function calculates the (sample) standard deviation. Standard deviation is the square root of variance. Let's take the sd() of the bill_length_mm variable
+
+```{r}
+sd(penguins$bill_length_mm, na.rm = TRUE)
+```
+
+Let's see if it actually equals the square root of the variance.
+
+```{r}
+sqrt(var(penguins$bill_length_mm, na.rm = TRUE)) == sd(penguins$bill_length_mm, na.rm = TRUE)
+```
+
+Do you expect the variance, standard deviation and mean of the flipper_length_mm variable to be higher or lower than bill_length_mm based on your knowledge of the penguin anotomy?
+
+Calculate the variance, standard deviation and mean of the flipper_length_mm variable and see if it's what you expect.
+
+[ ]
+# Write code here
+Minimum, Maximum, Range, and Interquartile Range
+The max() and min() functions can be used to calculate the maximum and minimum of a variable.
+
+[ ]
+max(penguins$bill_length_mm, na.rm = T)
+min(penguins$bill_length_mm, na.rm = T)
+
+The range of the variable is the difference between its maximum and minimum value---but the range() function in R will give the maximum and minimum value, allowing one to calculate the difference or to just state the plausible set of values the variable could take.
+
+[ ]
+range(penguins$bill_length_mm, na.rm = T)
+We could use the diff() function if we were interested in the difference.
+
+```{r}
+diff(range(penguins$bill_length_mm, na.rm = T))
+```
+
+The interquartile range---the difference between the third (upper) and first (lower) quartile---is calculated with the IQR() function. 
+The larger the interquartile range, the more spread out the values in the dataset are.
+
+
+```{r}
+IQR(penguins$bill_length_mm, na.rm = T)
+```
+
+Your turn: Calculate the range and interquartile range of the flipper_length_mm variable.
+
+[ ]
+# Write code here:
+Histograms: Visualize the distribution of a data
+
+**Histograms visualize frequency distributions of QUANTitative/numerical continuous data, whereas bar charts display categorical variables.**
+Bar charts require TWO values, x and y, to render. The x value might be string, numeric, date-time, log, etc. The y value should always be numeric. 
+Only one set of numeric values is required to render the histogram chart. The x-axis shows the ranges of value, whereas the y-axis shows the count of the occurrences.
+
+We can draw a histogram to get a better sense of how the data is distributed.
+
+
+```{r}
+ggplot(penguins, aes(x = bill_length_mm)) +
+  geom_histogram()
+```
+
+Now draw the histogram of flipper_length_mm.
+
+```{r}
+ggplot(penguins, aes(x = flipper_length_mm)) +
+  geom_histogram()
+```
+
+
+Notice that both histograms look like they have more than one center (bi-modal or tri-modal as opposed to unimodal). 
+
+**There are different types of modes that appear in histograms. Mode = the most common value.**
+**Unimodal histograms are histograms with one main high point or bump. Thus, there is one mode in the histogram because one value is more common than any other, therefore the frequency distribution (# of occurences, y-axis) for this value is high. This bump may be located in the center (such as a bell curve/normal distribution), or on the sides of the curve.**
+**A bimodal histogram has two main high points of bumps, and therefore two most common values. A tri-modal has three high points or bumps, and therefore 3 data values that are having the highest frequencies**
+
+This can be because there are systematic differences within the subgroups of observations. Plot the flipper_length_mm as separate histograms for each species and sex.
+
+(Hint: Add + facet_grid(species ~ sex) to the previous histogram. If you don't want NA's to be plotted, wrap penguins with na.omit() i.e. use na.omit(penguins) as your data.)
+
+```{r}
+ggplot(na.omit(penguins), aes(flipper_length_mm)) +
+  geom_histogram() +
+  facet_grid(species ~ sex)
+```
+
+Just by looking at the graph, do you think each species has a different mean flipper_length_mm value? In other words, would your best guess of a flipper length for a penguin change if you knew which species it belonged to? How about sex?
+
+We can calculate the mean value for each subgroup. Let's calculate the mean flipper length for female Adelie penguins:
+
+```{r}
+pbinom(q=13, size=20, prob=0.75)
+```
+
+
+```{r}
+# 95% chance of passing the exam, 5% chance of failing. What is the probability of a student passing 5 out of 5 exams?
+dbinom(x = 5, size = 5, prob = 0.95)
+
+# you have a random # generator with an equal likelihood of any # between 1 and 5. What is the probability of obtaining the value 1.5?
+dunif(x=3, min=1, max=5)
+# There is a 25% chance of obtaining the value 1.5.
+
+dunif(0.5, min = 0, max = 1)
+
+dpois(x = 0:10, lambda = 2)
+
+dpois(6, 4.5)
+```
+
+
+
+```{r}
+penguins %>%
+  filter(species == 'Adelie' & sex == 'female') |>
+  pull(flipper_length_mm) |>
+  mean() # 188
+```
+
+Your turn: Looking at the histogram, do you expect the value to be higher or lower? Calculate the mean flipper_length of the male Gentoo penguins.
+
+```{r}
+penguins %>%
+  filter(species == 'Gentoo' & sex == 'male') |>
+  pull(flipper_length_mm) |>
+  mean() # 222
+```
+
+**????**
+
+Variance (and thus standard deviation) is a measure of uncertainty. A high variance indicates high uncertainty. If knowing the species and sex makes our guesses about mean values better, then it should also reduce the variance, i.e. uncertainty, around our guess.
+
+Let's calculate the variance of flipper_length_mm for female Adelie penguins.
+
+
+```{r}
+penguins %>%
+  # filter(species == 'Adelie' & sex == 'female') |>
+  filter(flipper_length_mm) |>
+  var() # 31
+```
+
+Is this variance really lower than what you previously found for the whole flipper_length_mm variable?
+
